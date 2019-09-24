@@ -1,0 +1,245 @@
+<html>
+<head><title>Tic-tac-toe Jari v4</title>
+<script>
+
+var gameState = null; // "INIT", "MENU", "PLAY", "GAMEOVER"
+var gameMode = null; // "SINGLEPLAYER", "MULTIPLAYER"
+var gameTurn = null; // playerList[0].name, playerList[1].name
+var gameWinner = null; // playerList[0].name, playerList[1].name
+var playerList = []; // playerList.push(new Player("Player 1", "X"));
+var audioGameOver = new Audio("audioGameOver.wav");
+var audioPlacePiece = new Audio("audioPlacePiece.ogg");
+
+function Board() {
+	this.board = [];
+	this.build = function() {
+		this.board = [
+			"-","-","-",
+			"-","-","-",
+			"-","-","-"
+		];
+	}
+	this.draw = function() {
+		ctx.fillStyle="black";
+		ctx.font="italic 24pt Georgia";
+		var row = 0, col = 0;
+		for(var i=0; i<this.board.length; i++) {
+			ctx.fillText(this.board[i], canvas.width/2-50+(row*30), canvas.height/2-30+(col*30));
+			row++;
+			if(row==3) { row=0; col++; }
+		}
+	}
+} var board = new Board();
+
+function changeTurn() {
+	if(gameTurn==playerList[0].name) {
+		gameTurn = playerList[1].name;
+	} else {
+		gameTurn = playerList[0].name;
+	}
+}
+
+function Player(name, picture) {
+	this.name = name;
+	this.picture = picture;
+	this.wins = 0;
+	this.checkWin = function() {
+		var test3 = this.picture + this.picture + this.picture;
+		if(board.board[0]+board.board[1]+board.board[2]==test3) this.win();
+		if(board.board[0]+board.board[4]+board.board[8]==test3) this.win();
+		if(board.board[0]+board.board[3]+board.board[6]==test3) this.win();
+		if(board.board[4]+board.board[1]+board.board[7]==test3) this.win();
+		if(board.board[4]+board.board[3]+board.board[5]==test3) this.win();
+		if(board.board[4]+board.board[2]+board.board[6]==test3) this.win();
+		if(board.board[8]+board.board[7]+board.board[6]==test3) this.win();
+		if(board.board[8]+board.board[5]+board.board[2]==test3) this.win();
+		var openPlaces=9; // Check for draw
+		for(var i=0; i<board.board.length; i++) {
+			if(board.board[i]!="-") openPlaces--;
+			if(openPlaces==0) {
+				gameState = "GAMEOVER";
+				gameWinner = "No one";
+			}
+		}
+	}
+	this.win = function() {
+		gameWinner = this.name;
+		this.wins++;
+		audioGameOver.play();
+		gameState = "GAMEOVER";
+	}
+	this.ai = function() {
+		while(1) {
+			var chosenMove = Math.floor(Math.random() * board.board.length) + 1;
+			if(board.board[chosenMove]=="-") {
+				board.board[chosenMove] = this.picture;
+				this.checkWin();
+				changeTurn(); 
+				break;
+			}
+		}
+	}
+	this.placePiece = function(number) {
+		if(board.board[number]=="-") {
+			board.board[number] = this.picture;
+			audioPlacePiece.play();
+			changeTurn();
+		}
+	}
+	this.move = function(keyCode) {
+		switch(keyCode) {
+			case 81: // q
+				this.placePiece(0);
+				break;
+			case 87: // w
+				this.placePiece(1);	
+				break;
+			case 69: // e 
+				this.placePiece(2);
+				break;
+			case 65: // a
+				this.placePiece(3);		
+				break;
+			case 83: // s
+				this.placePiece(4);			
+				break;
+			case 68: // d
+				this.placePiece(5);
+				break; 
+			case 90: // z
+				this.placePiece(6);
+				break; 
+			case 88: // x
+				this.placePiece(7);
+				break; 
+			case 67: // c
+				this.placePiece(8);
+				break;
+			case 82: // r
+				gameNew(gameMode);
+				break;
+		}			
+	}
+}
+
+function getkey(event) { // Main function
+	var keyCode; 
+	if(event == null) {
+	keyCode = window.event.keyCode; 
+	window.event.preventDefault();
+	} else {
+	keyCode = event.keyCode; 
+	event.preventDefault();
+	}
+	
+	switch(gameState) {
+		case "MENU":
+			if(keyCode==81) gameMode = "SINGLEPLAYER"; // q
+			if(keyCode==87) gameMode = "MULTIPLAYER"; // w
+			gameNew(gameMode);
+			break;
+		case "PLAY":
+			switch(gameTurn) {
+				case playerList[0].name: 
+					playerList[0].move(keyCode);
+					playerList[0].checkWin();
+					if(gameMode=="SINGLEPLAYER"&&gameTurn==playerList[1].name&&gameState=="PLAY")
+						playerList[1].ai();
+					break;
+				case playerList[1].name:
+					playerList[1].move(keyCode);
+					playerList[1].checkWin();
+					break;
+			}
+			break;
+		case "GAMEOVER":
+			//gameNew(gameMode);
+			if(keyCode==82) gameNew(gameMode) // r
+			break;
+	}
+	gameDraw();
+}
+
+function gameInit() {
+	ctx = document.getElementById('canvas').getContext('2d'); 
+	window.addEventListener('keydown',getkey,false);
+	gameState = "MENU";
+	gameDraw();
+}
+
+function gameNew(mode) {
+	board.build();
+	gameWinner = null;
+	playerList = [];
+	switch(mode) {
+		case "MULTIPLAYER":
+			playerList.push(new Player("Player 1", "X"));
+			playerList.push(new Player("Player 2", "O"));
+			gameTurn = playerList[0].name;
+			gameState = "PLAY";
+			break;
+		case "SINGLEPLAYER":
+			playerList.push(new Player("Player 1", "X"));
+			playerList.push(new Player("AI 1", "O"));
+			gameTurn = playerList[0].name;
+			gameState = "PLAY";
+			break;
+	}
+	gameDraw();
+}
+
+function gameDraw() {
+	switch(gameState) {
+		case "MENU":
+			ctx.fillStyle="gray";
+			ctx.fillRect(0,0,canvas.width,canvas.height);
+			ctx.fillStyle="black";
+			ctx.font="italic 24pt Georgia";
+			ctx.textAlign = "center";
+			ctx.fillText("Tic-tac-toe Jari", canvas.width/2, 50);
+			ctx.font="italic 18pt Georgia";
+			ctx.fillText("Press q key to start singleplayer game.", canvas.width/2, 230);
+			ctx.fillText("Press w key to start multiplayer game.", canvas.width/2, 290);
+			break;
+		case "PLAY":
+			ctx.fillStyle="gray";
+			ctx.fillRect(0,0,canvas.width,canvas.height);
+			board.draw();
+			ctx.fillStyle="black";
+			ctx.font="italic 24pt Georgia";
+			ctx.textAlign = "center";
+			ctx.fillText("Tic-tac-toe Jari", canvas.width/2, 50);
+			ctx.font="italic 18pt Georgia";
+			ctx.textAlign = "left";
+			ctx.fillText("Turn: " + gameTurn,25,240);
+			ctx.fillText(playerList[0].name+" wins: "+playerList[0].wins,20,400);
+			ctx.fillText(playerList[1].name+" wins: "+playerList[1].wins,20,430);
+			ctx.fillText("Keyboard: q,w,e,a,s,d,z,x,c, and r to restart.", 20,460);
+			break;
+		case "GAMEOVER":
+			ctx.fillStyle="gray";
+			ctx.fillRect(0,0,canvas.width,canvas.height);
+			board.draw();
+			ctx.fillStyle="black";
+			ctx.font="italic 24pt Georgia";
+			ctx.textAlign = "center";
+			ctx.fillText("Tic-tac-toe Jari", canvas.width/2, 50);
+			ctx.font="italic 18pt Georgia";
+			ctx.textAlign = "left";
+			ctx.fillText(gameWinner + " wins!", 25,240);
+			ctx.fillText(playerList[0].name+" wins: "+playerList[0].wins,20,400);
+			ctx.fillText(playerList[1].name+" wins: "+playerList[1].wins,20,430);
+			ctx.fillText("Keyboard: q,w,e,a,s,d,z,x,c, and r to restart.", 20,460);
+			break;
+	}
+
+}
+
+</script>
+</head>
+<body onLoad="gameInit();">  
+<canvas id="canvas" width="640" height="480">
+Your browser doesn't support the HTML5 element canvas.
+</canvas>  
+</body>
+</html>

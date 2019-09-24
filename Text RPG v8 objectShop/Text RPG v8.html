@@ -1,0 +1,79 @@
+<html>
+<head><title>Text RPG v8</title></head>
+<body>
+<canvas id="canvas" width="640" height="480">Canvas error.</canvas>
+<script src="JS/gameDraw.js"></script>
+<script src="JS/gameUpdate.js"></script>
+<script src="JS/objectArmor.js"></script>
+<script src="JS/objectPlayer.js"></script>
+<script src="JS/objectShop.js"></script>
+<script src="JS/objectMonster.js"></script>
+<script src="JS/objectWeapon.js"></script>
+<script>
+
+// Canvas
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+// Misc
+var gameState = "INTRO"; // "INTRO", "TOWN", "HEALER", "DUNGEON", "FIGHT"
+var menuArrow = 0; // Selection arrow in menus.
+var eventLog = []; // Scrolling event log.
+var monsterList = []; // List of monsters in battle
+var weaponList = []; // List of weapons in game.
+var armorList = []; // List of armors in game.
+var shopList = []; // List of shops in the game.
+
+// Create weapons
+weaponList.push(new Weapon("Fist", 0, 1));
+weaponList.push(new Weapon("Sword", 10, 2));
+player.weapon = weaponList[0];
+
+// Create armors
+armorList.push(new Armor("Clothes", 0, 0));
+armorList.push(new Armor("Leather armor", 10, 1));
+player.armor = armorList[0];
+
+// Create shops 
+shopList.push(new Shop());
+shopList[0].name = "Shop";
+shopList[0].flavor = "You are in a dusty shop.";
+shopList[0].inventory.push(weaponList[1]); 
+shopList[0].inventory.push(armorList[1]);
+
+// Music
+var musicTown = new Audio("Music/Varulvis.wav");
+musicTown.loop = true;
+var musicDungeon = new Audio("Music/11-death-approaches.mp3");
+musicDungeon.loop = true;
+var musicIntro = new Audio("Music/rain.wav");
+musicIntro.loop = true;
+var musicWin = new Audio("Music/Ragtime.wav");
+musicWin.loop = true;
+
+// Handle keyboard controls
+var keysDown = {};
+addEventListener("keydown", function (e)
+{ keysDown[e.keyCode] = true; },false);
+addEventListener("keyup", function (e)
+{ delete keysDown[e.keyCode]; },false);
+
+// Location flavor texts.
+var flavorTown = "You are in a quiet town.";
+var flavorDungeon = "You are in a scary dungeon.";
+var flavorHealer = "You are in a peaceful church.";
+var flavorShop = "You are in a dusty shop.";
+
+function gameLoop() {
+	
+	gameUpdate();
+	gameDraw();
+	requestAnimationFrame(gameLoop);
+	keysDown = {};
+	
+}
+
+gameLoop();
+</script>
+</body>
+</html>

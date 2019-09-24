@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Kalapeli</title>
+	</head>
+	<body>
+		
+		<style>
+		div { padding:0px; }
+		canvas { padding:0px; }
+		</style>
+		
+		<div id="container" style="width:800px">
+		
+			<div id="top" style="background-color:#4682B4;padding:10px;font-size:24px;">
+			Kalapeli
+			</div>
+			
+			<div id ="joo">
+				<canvas id="canvas" width="512" height="480" style="float:left" > </canvas>
+				<div id="palkki oikealla" style="float:left">
+					<div id="infobox" style="padding:20px;width:248px;height:414px;background-color:#40B3DF"> 
+						<div id="fishtext"></div>
+						<div id="p1xptext"></div>
+						<div id="p1speedtext"></div>
+						<div id="m1speedtext"></div>
+						
+					</div>
+					<div id="buttonbox" style="text-align:center;width:288px;background-color:#000000"> 
+						<button id="testi" onclick="startGame()" style="">
+						New game</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 
+
+		-->
+
+		<script src="js/classItems.js"></script>
+		<script src="js/classMonster.js"></script>
+		<script src="js/classPlayer.js"></script>
+		<script src="js/images.js"></script>
+		<script src="js/misc.js"></script>
+		<script src="js/game.js"></script>
+		
+	</body>
+</html>
